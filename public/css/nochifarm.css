@@ -468,86 +468,16 @@ button {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* Video Player Audio & Fullscreen Controls */
-.hero-video-controls {
-  position: absolute;
-  bottom: 24px;
-  right: 28px;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.video-ctrl-icon-btn {
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.video-ctrl-icon-btn:hover {
-  background: var(--orange-primary);
-  border-color: var(--orange-primary);
-}
-
-.video-ctrl-icon-btn.is-unmuted {
-  border-color: rgba(240, 90, 40, 0.6);
-  color: #ffffff;
-}
-
-/* Audio Autoplay Fallback Prompt Pill (shown only if browser policy blocked unmuted autoplay) */
-.audio-prompt-pill {
-  position: absolute;
-  bottom: 24px;
-  right: 124px;
-  z-index: 25;
-  background: var(--orange-primary);
-  color: #ffffff;
-  border: none;
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  font-weight: 700;
-  padding: 8px 18px;
-  border-radius: var(--radius-full);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 18px rgba(240, 90, 40, 0.55);
-  cursor: pointer;
-  animation: pulseAudioPrompt 1.8s infinite ease-in-out;
-  transition: all 0.25s ease;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.audio-prompt-pill:hover {
-  background: var(--orange-dark);
-  transform: translateY(-1px) scale(1.03);
-}
-
-.audio-prompt-pill.hidden {
+/* Video Player Audio & Fullscreen Controls - COMPLETELY REMOVED ON DESKTOP & MOBILE */
+.hero-video-controls,
+#hero-video-controls,
+.video-ctrl-icon-btn,
+.audio-prompt-pill,
+#audio-autoplay-prompt {
   display: none !important;
-  opacity: 0 !important;
   pointer-events: none !important;
-}
-
-@keyframes pulseAudioPrompt {
-  0%, 100% {
-    box-shadow: 0 4px 18px rgba(240, 90, 40, 0.55);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 8px 26px rgba(240, 90, 40, 0.85);
-    transform: scale(1.04);
-  }
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
 
 /* Gesture / Swipe Unlock Bar */

@@ -17,7 +17,14 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
     <style>
-        /* Mobile Hero Bulletproof Layout Override - Guaranteed top-right controls and zero overlap */
+        /* Globally remove all sound/control buttons on both desktop and mobile */
+        .hero-video-controls,
+        #hero-video-controls,
+        .audio-prompt-pill,
+        #audio-autoplay-prompt {
+            display: none !important;
+        }
+
         @media (max-width: 768px) {
             #hero-video-section.viewport-lock {
                 height: 100vh !important;
@@ -36,10 +43,7 @@
             }
             #hero-intro-text,
             .hero-left-content,
-            .hero-gradient-overlay,
-            #audio-autoplay-prompt,
-            .hero-video-controls,
-            #hero-video-controls {
+            .hero-gradient-overlay {
                 display: none !important;
             }
             /* Slider is strictly centered at bottom with zero obstruction */
@@ -199,24 +203,6 @@
             </div>
         </div>
 
-        <!-- Video Top-Right Controls (Mute & Fullscreen) -->
-        <div class="hero-video-controls" id="hero-video-controls">
-            <button id="video-mute-btn" class="video-ctrl-icon-btn is-unmuted" title="Mute/Unmute Suara" aria-label="Suara Video" type="button">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                </svg>
-            </button>
-
-            <button id="video-fullscreen-btn" class="video-ctrl-icon-btn" title="Layar Penuh" aria-label="Layar Penuh" type="button">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <polyline points="9 21 3 21 3 15"></polyline>
-                    <line x1="21" y1="3" x2="14" y2="10"></line>
-                    <line x1="3" y1="21" x2="10" y2="14"></line>
-                </svg>
-            </button>
-        </div>
 
         <!-- Gesture / Swipe Unlock Bar -->
         <div class="hero-unlock-bar-container">
