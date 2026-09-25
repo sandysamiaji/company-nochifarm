@@ -110,7 +110,7 @@
          ========================================================================== -->
     <header id="hero-video-section" class="viewport-lock">
         <!-- Direct Autoplay Video with Direct Audio (Landscape for Desktop, Portrait Story_Wa for Mobile) -->
-        <video id="hero-video" class="hero-video-element" autoplay loop playsinline preload="auto"
+        <video id="hero-video" class="hero-video-element" autoplay loop playsinline webkit-playsinline preload="auto"
                data-desktop-src="{{ asset('videos/nochifarm_full.mp4') }}"
                data-mobile-src="{{ asset('videos/Story_Wa.mp4') }}">
             <!-- Portrait Video for Mobile Phone Screens -->
@@ -151,16 +151,17 @@
             </div>
         </div>
 
+        <!-- Video Sound Prompt Pill (Visible when unmuted autoplay is blocked by browser policy) -->
+        <button id="audio-autoplay-prompt" class="audio-prompt-pill hidden" title="Ketuk untuk mendengarkan suara">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <span>Ketuk Layar untuk Suara</span>
+        </button>
+
         <!-- Video Sound & Fullscreen Controls -->
         <div class="hero-video-controls">
-            <button id="audio-autoplay-prompt" class="audio-prompt-pill hidden" title="Klik untuk mendengarkan suara">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                </svg>
-                <span>Nyalakan Suara</span>
-            </button>
-
             <button id="video-mute-btn" class="video-ctrl-icon-btn is-unmuted" title="Mute/Unmute Suara" aria-label="Suara Video">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>

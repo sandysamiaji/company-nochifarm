@@ -49,50 +49,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Helper to directly activate audio
-  function activateAudio() {
+  // Core helper to unmute and play video with sound on mobile & desktop
+  function unmuteHeroAudio() {
     if (!heroVideo) return;
-    heroVideo.muted = false;
-    heroVideo.volume = 1.0;
-    const playPromise = heroVideo.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
+    try {
+      heroVideo.muted = false;
+      heroVideo.volume = 1.0;
+      const playPromise = heroVideo.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          updateVolumeButtonUI(false);
+          if (audioPrompt) audioPrompt.classList.add('hidden');
+        }).catch(err => {
+          console.warn('Playback error during unmute attempt:', err);
+        });
+      } else {
         updateVolumeButtonUI(false);
         if (audioPrompt) audioPrompt.classList.add('hidden');
-      }).catch(() => {
-        // Still blocked by browser
-      });
-    } else {
-      updateVolumeButtonUI(false);
-      if (audioPrompt) audioPrompt.classList.add('hidden');
+      }
+    } catch (err) {
+      console.warn('Direct unmute error:', err);
     }
   }
 
-  // Global one-time listener: any user gesture anywhere un-mutes audio instantly
-  let audioUnlocked = false;
-  function setupInteractionUnmute() {
-    if (audioUnlocked) return;
-    const gestureEvents = ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown', 'wheel', 'scroll'];
-    const handleGesture = () => {
-      audioUnlocked = true;
-      activateAudio();
-      gestureEvents.forEach(evt => window.removeEventListener(evt, handleGesture, { capture: true }));
-    };
-    gestureEvents.forEach(evt => window.addEventListener(evt, handleGesture, { capture: true, once: true }));
-  }
+  // User gesture handler: on mobile, 'touchend' or 'click' unlocks audio per browser policy
+  const handleUserGestureUnmute = (e) => {
+    if (!heroVideo) return;
+    // Don't trigger if user is interacting with navigation or modals
+    if (e.target.closest('#mobile-drawer, #mobile-nav-toggle, #video-modal-backdrop')) return;
+    if (heroVideo.muted) {
+      unmuteHeroAudio();
+    }
+  };
+
+  window.addEventListener('click', handleUserGestureUnmute, { passive: true });
+  window.addEventListener('touchend', handleUserGestureUnmute, { passive: true });
 
   // 1. Initial State: Hero locked in full viewport
   if (heroSection) {
     heroSection.classList.add('viewport-lock');
     body.classList.add('hero-locked');
+
+    // Tapping on hero section unmutes if muted
+    heroSection.addEventListener('click', (e) => {
+      if (e.target.closest('button, a, #hero-swipe-slider, #mobile-nav-toggle')) return;
+      if (heroVideo && heroVideo.muted) {
+        unmuteHeroAudio();
+      }
+    });
   }
 
   // 2. Direct Autoplay Video with DIRECT AUDIO & Responsive Portrait/Landscape Switching
   if (heroVideo) {
-    // Start with unmuted directly
-    heroVideo.muted = false;
-    heroVideo.volume = 1.0;
-
     // Helper to ensure proper portrait (Story_Wa.mp4) vs landscape (nochifarm_full.mp4) video source
     const syncResponsiveVideoSource = () => {
       const isMobilePortrait = window.matchMedia('(max-width: 768px), (orientation: portrait)').matches;
@@ -124,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    // Attempt direct unmuted playback
+    // Attempt direct playback (unmuted where browser allows, gracefully fallback on strict mobile)
     const startPlay = () => {
       syncResponsiveVideoSource();
       heroVideo.muted = false;
@@ -137,13 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
           updateVolumeButtonUI(false);
           if (audioPrompt) audioPrompt.classList.add('hidden');
         }).catch(err => {
-          console.warn('Autoplay with sound requires user gesture per browser policy. Falling back to muted play until first tap/scroll:', err);
-          // Browser autoplay policy blocked unmuted sound -> play muted first so video rolls immediately
+          // Strict mobile browser policy blocked sound before user touch
+          // Play muted first so video rolls immediately without freezing, show prompt to tap
           heroVideo.muted = true;
           heroVideo.play().catch(() => {});
           updateVolumeButtonUI(true);
           if (audioPrompt) audioPrompt.classList.remove('hidden');
-          setupInteractionUnmute();
         });
       }
     };
@@ -161,14 +168,25 @@ document.addEventListener('DOMContentLoaded', () => {
     heroVideo.addEventListener('playing', () => {
       setTimeout(hideIntroText, 600);
     });
+
+    // Clicking/tapping on the video directly toggles audio if muted
+    heroVideo.addEventListener('click', () => {
+      if (heroVideo.muted) unmuteHeroAudio();
+    });
+    heroVideo.addEventListener('touchend', () => {
+      if (heroVideo.muted) unmuteHeroAudio();
+    }, { passive: true });
   }
 
-  // Audio prompt pill click handler
+  // Audio prompt pill click/touch handler
   if (audioPrompt) {
-    audioPrompt.addEventListener('click', (e) => {
+    const handlePromptAction = (e) => {
+      e.preventDefault();
       e.stopPropagation();
-      activateAudio();
-    });
+      unmuteHeroAudio();
+    };
+    audioPrompt.addEventListener('click', handlePromptAction);
+    audioPrompt.addEventListener('touchend', handlePromptAction);
   }
 
   // 3. Unlock Function
@@ -183,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Also ensure audio is activated on unlock
-    activateAudio();
+    unmuteHeroAudio();
 
     if (heroSection) {
       heroSection.classList.remove('viewport-lock');
@@ -202,18 +220,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Trigger unlock on Swipe Slider or Brand Watermark click
   const brandWatermark = document.getElementById('video-brand-watermark');
   if (brandWatermark) {
-    brandWatermark.addEventListener('click', (e) => {
+    const handleWatermarkAction = (e) => {
       e.preventDefault();
-      activateAudio();
+      unmuteHeroAudio();
       unlockHero('tentang-nochi');
-    });
+    };
+    brandWatermark.addEventListener('click', handleWatermarkAction);
+    brandWatermark.addEventListener('touchend', handleWatermarkAction);
   }
 
   if (swipeSlider) {
-    swipeSlider.addEventListener('click', () => {
-      activateAudio();
+    const handleSliderAction = (e) => {
+      unmuteHeroAudio();
       unlockHero('tentang-nochi');
-    });
+    };
+    swipeSlider.addEventListener('click', handleSliderAction);
+    swipeSlider.addEventListener('touchend', handleSliderAction);
   }
 
   // 5. Mouse wheel & touch gestures to unlock
@@ -241,17 +263,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { passive: true });
 
-  // 6. Audio Mute / Unmute Button Click
+  // 6. Audio Mute / Unmute Button Click & Touch
   if (videoMuteBtn && heroVideo) {
-    videoMuteBtn.addEventListener('click', (e) => {
+    const handleMuteBtnAction = (e) => {
+      e.preventDefault();
       e.stopPropagation();
       if (heroVideo.muted) {
-        activateAudio();
+        unmuteHeroAudio();
       } else {
         heroVideo.muted = true;
         updateVolumeButtonUI(true);
       }
-    });
+    };
+    videoMuteBtn.addEventListener('click', handleMuteBtnAction);
+    videoMuteBtn.addEventListener('touchend', handleMuteBtnAction);
   }
 
   // 7. Fullscreen Toggle
