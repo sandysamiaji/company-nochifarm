@@ -55,13 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       heroVideo.muted = false;
       heroVideo.volume = 1.0;
+      heroVideo.defaultMuted = false;
       const playPromise = heroVideo.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
           updateVolumeButtonUI(false);
           if (audioPrompt) audioPrompt.classList.add('hidden');
         }).catch(err => {
-          console.warn('Playback error during unmute attempt:', err);
+          console.warn('Playback notice:', err);
         });
       } else {
         updateVolumeButtonUI(false);
@@ -72,29 +73,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // User gesture handler: on mobile, 'touchend' or 'click' unlocks audio per browser policy
+  // Automatic touch audio unlock: any touch anywhere on mobile or desktop turns on audio instantly without pausing
   const handleUserGestureUnmute = (e) => {
     if (!heroVideo) return;
     // Don't trigger if user is interacting with navigation or modals
-    if (e.target.closest('#mobile-drawer, #mobile-nav-toggle, #video-modal-backdrop')) return;
+    if (e.target && e.target.closest && e.target.closest('#mobile-drawer, #mobile-nav-toggle, #video-modal-backdrop')) return;
     if (heroVideo.muted) {
       unmuteHeroAudio();
     }
   };
 
-  window.addEventListener('click', handleUserGestureUnmute, { passive: true });
-  window.addEventListener('touchend', handleUserGestureUnmute, { passive: true });
+  ['touchstart', 'touchend', 'pointerdown', 'pointerup', 'click'].forEach(evt => {
+    window.addEventListener(evt, handleUserGestureUnmute, { capture: true, passive: true });
+    document.addEventListener(evt, handleUserGestureUnmute, { capture: true, passive: true });
+  });
 
   // 1. Initial State: Hero locked in full viewport
   if (heroSection) {
     heroSection.classList.add('viewport-lock');
     body.classList.add('hero-locked');
 
-    // Tapping on hero section unmutes if muted
+    // Tapping on hero section turns on sound immediately and ensures video keeps playing
     heroSection.addEventListener('click', (e) => {
-      if (e.target.closest('button, a, #hero-swipe-slider, #mobile-nav-toggle')) return;
-      if (heroVideo && heroVideo.muted) {
+      if (e.target && e.target.closest && e.target.closest('button, a, #hero-swipe-slider, #mobile-nav-toggle')) return;
+      if (heroVideo) {
         unmuteHeroAudio();
+        heroVideo.play().catch(() => {});
       }
     });
   }
@@ -132,11 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    // Attempt direct playback (unmuted where browser allows, gracefully fallback on strict mobile)
+    // Attempt direct unmuted playback
     const startPlay = () => {
       syncResponsiveVideoSource();
       heroVideo.muted = false;
       heroVideo.volume = 1.0;
+      heroVideo.defaultMuted = false;
       const p = heroVideo.play();
 
       if (p !== undefined) {
@@ -145,12 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
           updateVolumeButtonUI(false);
           if (audioPrompt) audioPrompt.classList.add('hidden');
         }).catch(err => {
-          // Strict mobile browser policy blocked sound before user touch
-          // Play muted first so video rolls immediately without freezing, show prompt to tap
+          // If browser policy temporarily pauses until first user gesture:
+          // Keep video rolling smoothly, it will unmute on the first touch!
           heroVideo.muted = true;
           heroVideo.play().catch(() => {});
           updateVolumeButtonUI(true);
-          if (audioPrompt) audioPrompt.classList.remove('hidden');
         });
       }
     };
@@ -166,16 +170,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1500);
 
     heroVideo.addEventListener('playing', () => {
-      setTimeout(hideIntroText, 600);
+      setTimeout(hideIntroText, 400);
     });
 
-    // Clicking/tapping on the video directly toggles audio if muted
-    heroVideo.addEventListener('click', () => {
-      if (heroVideo.muted) unmuteHeroAudio();
+    // Anti-pause guard: ensure video NEVER stops or pauses when the user touches the screen
+    heroVideo.addEventListener('pause', () => {
+      if (!isUnlocked) {
+        heroVideo.play().catch(() => {});
+      }
     });
-    heroVideo.addEventListener('touchend', () => {
-      if (heroVideo.muted) unmuteHeroAudio();
-    }, { passive: true });
   }
 
   // Audio prompt pill click/touch handler
