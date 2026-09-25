@@ -37,41 +37,10 @@
             #hero-intro-text,
             .hero-left-content,
             .hero-gradient-overlay,
-            #audio-autoplay-prompt {
-                display: none !important;
-            }
-            /* Video Controls strictly at Top-Right on mobile so it NEVER collides with bottom slider */
+            #audio-autoplay-prompt,
             .hero-video-controls,
             #hero-video-controls {
-                position: absolute !important;
-                top: 14px !important;
-                right: 14px !important;
-                bottom: auto !important;
-                left: auto !important;
-                z-index: 9999 !important;
-                display: flex !important;
-                align-items: center !important;
-                gap: 10px !important;
-            }
-            .video-ctrl-icon-btn {
-                width: 44px !important;
-                height: 44px !important;
-                background: rgba(15, 23, 42, 0.78) !important;
-                backdrop-filter: blur(10px) !important;
-                -webkit-backdrop-filter: blur(10px) !important;
-                border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
-                border-radius: 50% !important;
-                color: #ffffff !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                cursor: pointer !important;
-                touch-action: manipulation !important;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
-            }
-            .video-ctrl-icon-btn.is-unmuted {
-                border-color: var(--orange-primary) !important;
-                background: rgba(240, 90, 40, 0.9) !important;
+                display: none !important;
             }
             /* Slider is strictly centered at bottom with zero obstruction */
             .hero-unlock-bar-container {

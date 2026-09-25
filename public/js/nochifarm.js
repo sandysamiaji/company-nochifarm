@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  ['touchstart', 'touchend', 'pointerdown', 'pointerup', 'click'].forEach(evt => {
+  ['touchstart', 'touchend', 'touchmove', 'pointerdown', 'pointerup', 'click', 'scroll'].forEach(evt => {
     window.addEventListener(evt, handleUserGestureUnmute, { capture: true, passive: true });
     document.addEventListener(evt, handleUserGestureUnmute, { capture: true, passive: true });
   });
@@ -162,6 +162,8 @@ document.addEventListener('DOMContentLoaded', () => {
     startPlay();
     heroVideo.addEventListener('loadeddata', startPlay, { once: true });
     heroVideo.addEventListener('canplay', startPlay, { once: true });
+    window.addEventListener('load', startPlay, { once: true });
+    window.addEventListener('pageshow', startPlay);
 
     // Text disappears automatically, video plays directly
     setTimeout(() => {

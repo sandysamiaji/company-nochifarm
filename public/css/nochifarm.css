@@ -1612,17 +1612,12 @@ button {
     font-size: 8px;
   }
 
-  /* Video Hero Controls on Mobile - Top Right to avoid any overlap with bottom slider */
-  .hero-video-controls {
-    bottom: auto;
-    top: 14px;
-    right: 14px;
-    z-index: 35;
-    gap: 8px;
-  }
-  .video-ctrl-icon-btn {
-    width: 36px;
-    height: 36px;
+  /* On Mobile: completely hide video controls - 100% direct audio and zero button obstructions */
+  .hero-video-controls,
+  #hero-video-controls,
+  .audio-prompt-pill,
+  #audio-autoplay-prompt {
+    display: none !important;
   }
 
   /* Slider Bar on Mobile */
