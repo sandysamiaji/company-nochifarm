@@ -43,12 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Any user touch, swipe, scroll, or click anywhere on the page instantly activates audio
+  // Any user interaction (including mousemove, hover, scroll, focus, or tap) instantly activates audio
   const passiveGestureEvents = [
+    'mousemove', 'mouseenter', 'mouseover',
+    'pointermove', 'pointerdown', 'pointerup', 'pointerover', 'pointerenter',
     'touchstart', 'touchend', 'touchmove',
-    'pointerdown', 'pointerup',
     'click', 'mousedown', 'mouseup',
-    'scroll', 'wheel', 'keydown'
+    'scroll', 'wheel', 'keydown', 'focus'
   ];
 
   passiveGestureEvents.forEach(evt => {
@@ -56,12 +57,35 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener(evt, unmuteDirectly, { capture: true, passive: true });
   });
 
+  // Continuous auto-unmute attempt loop on initial page load
+  let unmuteAttempts = 0;
+  const unmuteInterval = setInterval(() => {
+    unmuteAttempts++;
+    if (!heroVideo || heroVideo.muted === false || unmuteAttempts > 20) {
+      clearInterval(unmuteInterval);
+      return;
+    }
+    heroVideo.muted = false;
+    heroVideo.volume = 1.0;
+    heroVideo.defaultMuted = false;
+    const p = heroVideo.play();
+    if (p !== undefined) {
+      p.then(() => {
+        clearInterval(unmuteInterval);
+      }).catch(() => {
+        heroVideo.muted = true;
+      });
+    }
+  }, 200);
+
   // 1. Initial State: Hero locked in full viewport
   if (heroSection) {
     heroSection.classList.add('viewport-lock');
     body.classList.add('hero-locked');
 
-    // Tapping on hero area immediately activates audio without pausing
+    // Moving mouse or hovering over hero area immediately activates audio without pausing
+    heroSection.addEventListener('pointermove', unmuteDirectly, { passive: true });
+    heroSection.addEventListener('mousemove', unmuteDirectly, { passive: true });
     heroSection.addEventListener('pointerdown', unmuteDirectly, { passive: true });
     heroSection.addEventListener('click', unmuteDirectly, { passive: true });
   }
