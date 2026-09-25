@@ -232,8 +232,12 @@ document.addEventListener('DOMContentLoaded', () => {
     brandWatermark.addEventListener('touchend', handleWatermarkAction);
   }
 
+  let lastSliderActionTime = 0;
   if (swipeSlider) {
     const handleSliderAction = (e) => {
+      const now = Date.now();
+      if (now - lastSliderActionTime < 350) return;
+      lastSliderActionTime = now;
       unmuteHeroAudio();
       unlockHero('tentang-nochi');
     };
@@ -266,9 +270,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { passive: true });
 
-  // 6. Audio Mute / Unmute Button Click & Touch
+  // 6. Audio Mute / Unmute Button Click & Touch with Touch Debounce
+  let lastMuteToggleTime = 0;
   if (videoMuteBtn && heroVideo) {
     const handleMuteBtnAction = (e) => {
+      const now = Date.now();
+      if (now - lastMuteToggleTime < 350) return;
+      lastMuteToggleTime = now;
       e.preventDefault();
       e.stopPropagation();
       if (heroVideo.muted) {

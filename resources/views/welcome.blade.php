@@ -12,9 +12,88 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;1,600;1,700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 
-    <!-- Stylesheet -->
-    <link rel="stylesheet" href="{{ asset('css/nochifarm.css') }}">
+    <!-- Stylesheet with Cache-Buster -->
+    <link rel="stylesheet" href="{{ asset('css/nochifarm.css') }}?v={{ file_exists(public_path('css/nochifarm.css')) ? filemtime(public_path('css/nochifarm.css')) : time() }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+
+    <style>
+        /* Mobile Hero Bulletproof Layout Override - Guaranteed top-right controls and zero overlap */
+        @media (max-width: 768px) {
+            #hero-video-section.viewport-lock {
+                height: 100vh !important;
+                height: 100dvh !important;
+            }
+            .hero-video-element {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                object-position: center center !important;
+                filter: none !important;
+                pointer-events: none !important;
+            }
+            #hero-intro-text,
+            .hero-left-content,
+            .hero-gradient-overlay,
+            #audio-autoplay-prompt {
+                display: none !important;
+            }
+            /* Video Controls strictly at Top-Right on mobile so it NEVER collides with bottom slider */
+            .hero-video-controls,
+            #hero-video-controls {
+                position: absolute !important;
+                top: 14px !important;
+                right: 14px !important;
+                bottom: auto !important;
+                left: auto !important;
+                z-index: 9999 !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 10px !important;
+            }
+            .video-ctrl-icon-btn {
+                width: 44px !important;
+                height: 44px !important;
+                background: rgba(15, 23, 42, 0.78) !important;
+                backdrop-filter: blur(10px) !important;
+                -webkit-backdrop-filter: blur(10px) !important;
+                border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+                border-radius: 50% !important;
+                color: #ffffff !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                cursor: pointer !important;
+                touch-action: manipulation !important;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+            }
+            .video-ctrl-icon-btn.is-unmuted {
+                border-color: var(--orange-primary) !important;
+                background: rgba(240, 90, 40, 0.9) !important;
+            }
+            /* Slider is strictly centered at bottom with zero obstruction */
+            .hero-unlock-bar-container {
+                position: absolute !important;
+                bottom: 22px !important;
+                left: 50% !important;
+                right: auto !important;
+                transform: translateX(-50%) !important;
+                z-index: 30 !important;
+                width: auto !important;
+            }
+            .hero-swipe-slider {
+                width: min(290px, 86vw) !important;
+                padding: 6px 14px 6px 6px !important;
+                font-size: 11.5px !important;
+                background: rgba(15, 23, 42, 0.75) !important;
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                border: 1px solid rgba(240, 90, 40, 0.4) !important;
+            }
+        }
+    </style>
 </head>
 <body class="hero-locked">
 
@@ -151,25 +230,16 @@
             </div>
         </div>
 
-        <!-- Video Sound Prompt Pill (Visible when unmuted autoplay is blocked by browser policy) -->
-        <button id="audio-autoplay-prompt" class="audio-prompt-pill hidden" title="Ketuk untuk mendengarkan suara">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            </svg>
-            <span>Ketuk Layar untuk Suara</span>
-        </button>
-
-        <!-- Video Sound & Fullscreen Controls -->
-        <div class="hero-video-controls">
-            <button id="video-mute-btn" class="video-ctrl-icon-btn is-unmuted" title="Mute/Unmute Suara" aria-label="Suara Video">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <!-- Video Top-Right Controls (Mute & Fullscreen) -->
+        <div class="hero-video-controls" id="hero-video-controls">
+            <button id="video-mute-btn" class="video-ctrl-icon-btn is-unmuted" title="Mute/Unmute Suara" aria-label="Suara Video" type="button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                     <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                 </svg>
             </button>
 
-            <button id="video-fullscreen-btn" class="video-ctrl-icon-btn" title="Layar Penuh">
+            <button id="video-fullscreen-btn" class="video-ctrl-icon-btn" title="Layar Penuh" aria-label="Layar Penuh" type="button">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 3 21 3 21 9"></polyline>
                     <polyline points="9 21 3 21 3 15"></polyline>
@@ -796,7 +866,7 @@
         </div>
     </div>
 
-    <!-- Script Engine -->
-    <script src="{{ asset('js/nochifarm.js') }}"></script>
+    <!-- Script Engine with Cache-Buster -->
+    <script src="{{ asset('js/nochifarm.js') }}?v={{ file_exists(public_path('js/nochifarm.js')) ? filemtime(public_path('js/nochifarm.js')) : time() }}"></script>
 </body>
 </html>
