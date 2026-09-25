@@ -1639,6 +1639,8 @@ button {
   .swipe-circle-thumb {
     width: 34px;
     height: 34px;
+  }
+
   /* Highlights Icons Strip (5 Items) */
   .highlights-strip-card {
     grid-template-columns: 1fr;
